@@ -56,11 +56,9 @@ def main(url, output_filename):
         timestamp = datetime.now().strftime("%d-%m-%Y_%H:%M:%S:%f")
         
         # Step-1: Get Server IP & HTTP Response
-        if "myvideo" in output_filename:
-                    headers = {'Range': 'bytes=26607616-34082854'}
-                    response = requests.head(url, stream=True, headers=headers)
-        else:
-            response = requests.get(url, stream=True)
+        headers = {'Range': 'bytes=0-'}
+        response = requests.head(url, stream=True, headers=headers, allow_redirects=True)
+
         sever_ip = response.raw._connection.sock.getpeername()[0]
         response_headers = response.headers
 
@@ -118,7 +116,8 @@ def main(url, output_filename):
 
 if __name__ == '__main__':
     
-    url_eviction_period = "https://d3hobf0i9qrmvp.cloudfront.net/eviction_period.png"
+    #url_eviction_period = "https://d3hobf0i9qrmvp.cloudfront.net/eviction_period.png"
+    url_eviction_period = "https://d3hobf0i9qrmvp.cloudfront.net/random_video.mp4"
 
     timestamp = datetime.now().strftime("%d-%m-%Y_%Hhh_%Mmm")
     print("starting the script at: ",timestamp)

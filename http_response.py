@@ -82,7 +82,7 @@ def main(url, output_filename):
 
         # Step-2: Measure latency
         print("measuring latency...")
-        latency = measure_latency(host=server_ip, port=443, runs=1, timeout=1)
+        latency = measure_latency(host=server_ip, port=443, runs=5, timeout=1)
         if latency:
             latency = min(latency)
         else:
@@ -172,7 +172,7 @@ if __name__ == '__main__':
     timestamp = datetime.now().strftime("%d-%m-%Y_%Hhh_%Mmm")
     print("starting the script at: ",timestamp)
     
-    results_directory = f"./testing/{timestamp}/"
+    results_directory = f"./results/{timestamp}/"
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
         print("result directory created.")
@@ -185,11 +185,11 @@ if __name__ == '__main__':
     
     url_dicts_list = get_url_dicts_from_csv("merged_urls.csv")
 
-    while elapsed_time < 161:
+    while elapsed_time < 721:
         print("\n"*20, "*"*20, f" iteration:{iteration+1} -- elapsed time= {elapsed_time} sec", "*"*20,"\n\n")
         
         # Number of urls to process in parallel
-        chunk_size = 125
+        chunk_size = 125    
 
         # Create a ThreadPoolExecutor with max_workers set to the chunk size
         with concurrent.futures.ThreadPoolExecutor(max_workers=chunk_size) as executor:
@@ -207,7 +207,7 @@ if __name__ == '__main__':
                     url = url_data["url_chunk"]
                     name = url_data["name"]
                     content = url_data["content"]
-                    futures.append(executor.submit(main, url, f"./testing/{timestamp}/{name}_{content}"))
+                    futures.append(executor.submit(main, url, f"./results/{timestamp}/{name}_{content}"))
 
             # Wait for all the futures to complete
             concurrent.futures.wait(futures)
@@ -223,5 +223,5 @@ if __name__ == '__main__':
             #break
     
     
-    print(f"\n\niteration:{iteration} -- elapsed time= {elapsed_time} sec")
+    print(f"\n\niteration:{iteration} -- elapsed time= {elapsed_time} min")
     print("F I N I S H E D.")
