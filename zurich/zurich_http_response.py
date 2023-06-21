@@ -1,4 +1,3 @@
-import requests
 import subprocess
 import time
 from datetime import datetime
@@ -7,6 +6,14 @@ import re
 import csv
 import os
 import concurrent.futures
+from urllib.parse import urlparse
+import socket
+from urllib.parse import urlparse
+
+
+server_ips ={
+    "zurich": "18.165.183.81"
+}
 
 
 def traceroute(target, max_hops=30, timeout=1):
@@ -60,8 +67,57 @@ def traceroute(target, max_hops=30, timeout=1):
         return [], []
 
 
+# get http response for a url chunk from a specific cloudfront server
+def get_http_response(url, server_ip):
+    # Step-1: Get url & hostname of video chunk
+    parsed_url = urlparse(url)
+    hostname = parsed_url.hostname
+    rest_of_url = parsed_url.path + "?" + parsed_url.query
+    print(f"\nCF_Server: {server_ip}\nchunk_hostname: {hostname}\nchuck_URL: {rest_of_url}")
+
+    # Define the server address and port
+    server_address = (server_ip, 80)
+
+    # Create a TCP socket
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Connect to the server
+    client_socket.connect(server_address)
+    print(f"TCP connection successfully created to {server_ip}\n\n")
+
+    # Send the GET request
+    request = f"HEAD {rest_of_url} HTTP/1.1\r\nHost: {hostname}\r\nRange: bytes=0-\r\n\r\n"
+    client_socket.send(request.encode())
+
+    # Receive the response
+    response = b''
+    while b'\r\n\r\n' not in response:
+        chunk = client_socket.recv(4096)
+        if not chunk:
+            break
+        response += chunk
+
+    # Decode and print the response headers
+    decoded_response = response.decode('iso-8859-1')
+    header_end = decoded_response.index('\r\n\r\n') + 4
+    headers = decoded_response[:header_end]
+
+    # Parse the headers into a dictionary
+    header_lines = headers.split('\r\n')
+    header_dict = {}
+    for line in header_lines[1:-2]:  # Skip the first line and last line
+        key, value = line.split(': ', 1)
+        header_dict[key] = value
+
+    # Close the socket
+    client_socket.close()
+
+    return header_dict
+
+
 traceroutes_ips = {}
 traceroutes_hnames = {}
+server_ip = "18.165.183.81"
 
 def main(url, output_filename):
     print("- "*30, "\n", output_filename, "\n", "- "*30)
@@ -72,12 +128,8 @@ def main(url, output_filename):
     try:
         timestamp = datetime.now().strftime("%d-%m-%Y_%H:%M:%S:%f")
         
-        # Step-1: Get Server IP & HTTP Response
-        headers = {'Range': 'bytes=0-'}
-        response = requests.head(url, stream=True, headers=headers, allow_redirects=True)
-
-        server_ip = response.raw._connection.sock.getpeername()[0]
-        response_headers = response.headers
+        # Step-1: Get HTTP Response
+        response_headers = get_http_response(url, server_ip)
         data.update({'timestamp(dd-mm-yyyy hh:mm:ss:ms)': timestamp, 'url': url, 'responseIP': server_ip})
 
         # Step-2: Measure latency
@@ -101,7 +153,7 @@ def main(url, output_filename):
                 data[header] = value
         data["reasponseHeaders"] = response_headers
         
-
+        '''
         # Step-3: Traceroute for response IP
         hops_ip, hops_hostname = [], []
         hop_count = 0
@@ -135,8 +187,9 @@ def main(url, output_filename):
                 hops_hostname = traceroutes_hnames[x_server_ip]
         
             hop_count = len(hops_hostname)
-
+        
         data.update({'X-Server-IP_hops':hops_ip, 'X-Server-IP_hnames':hops_hostname, 'X-Server-IP_hopcount':hop_count})
+        '''
 
         if "my" in output_filename:
             info = "my content hosted on CloudFront"
@@ -218,9 +271,9 @@ if __name__ == '__main__':
         iteration += 1
 
         #### REMOVE - ONLY FOR TESTING ###
-        if iteration == 3:
+        if iteration == 1:
             pass
-            #break
+            break
     
     
     print(f"\n\niteration:{iteration} -- elapsed time= {elapsed_time} min")
