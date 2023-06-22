@@ -74,7 +74,12 @@ def main(url, output_filename):
         
         # Step-1: Get Server IP & HTTP Response
         headers = {'Range': 'bytes=0-'}
+        start_time = time.time()
         response = requests.head(url, stream=True, headers=headers, allow_redirects=True)
+        latency = response.elapsed.total_seconds() * 1000
+        print(response)
+        end_time = time.time()
+        #response_time = (end_time - start_time) * 1000
 
         server_ip = response.raw._connection.sock.getpeername()[0]
         response_headers = response.headers
@@ -82,11 +87,14 @@ def main(url, output_filename):
 
         # Step-2: Measure latency
         print("measuring latency...")
-        latency = measure_latency(host=server_ip, port=443, runs=1, timeout=1)
+        #latency = response_time
+        '''
+        latency = measure_latency(host=server_ip, port=443, runs=5, timeout=1)
         if latency:
             latency = min(latency)
         else:
             latency = " "
+        '''
         data.update({'latency(ms)': latency})
 
         # print server IP and latency
@@ -101,7 +109,7 @@ def main(url, output_filename):
                 data[header] = value
         data["reasponseHeaders"] = response_headers
         
-
+        '''
         # Step-3: Traceroute for response IP
         hops_ip, hops_hostname = [], []
         hop_count = 0
@@ -137,7 +145,7 @@ def main(url, output_filename):
             hop_count = len(hops_hostname)
 
         data.update({'X-Server-IP_hops':hops_ip, 'X-Server-IP_hnames':hops_hostname, 'X-Server-IP_hopcount':hop_count})
-
+        '''
         if "my" in output_filename:
             info = "my content hosted on CloudFront"
         else:
@@ -172,7 +180,7 @@ if __name__ == '__main__':
     timestamp = datetime.now().strftime("%d-%m-%Y_%Hhh_%Mmm")
     print("starting the script at: ",timestamp)
     
-    results_directory = f"./testing/{timestamp}/"
+    results_directory = f"./results/{timestamp}/"
     if not os.path.exists(results_directory):
         os.makedirs(results_directory)
         print("result directory created.")
@@ -183,13 +191,13 @@ if __name__ == '__main__':
     elapsed_time = 0 # in minutes
     iteration = 0
     
-    url_dicts_list = get_url_dicts_from_csv("merged_urls.csv")
+    url_dicts_list = get_url_dicts_from_csv("my_urls_testing.csv")
 
-    while elapsed_time < 721:
+    while elapsed_time < 901:
         print("\n"*20, "*"*20, f" iteration:{iteration+1} -- elapsed time= {elapsed_time} sec", "*"*20,"\n\n")
         
         # Number of urls to process in parallel
-        chunk_size = 125
+        chunk_size = 1    
 
         # Create a ThreadPoolExecutor with max_workers set to the chunk size
         with concurrent.futures.ThreadPoolExecutor(max_workers=chunk_size) as executor:
@@ -201,27 +209,28 @@ if __name__ == '__main__':
                 # Get the chunk of strings
                 print(f"\n\n\n\n\n\n\n********* CHUNK: {i} to {i+chunk_size} **********")
                 chunk = url_dicts_list[i:i+chunk_size]
-
+                time.sleep(1)
                 # Submit the process_string function to the executor for each string in the chunk
                 for url_data in chunk:
                     url = url_data["url_chunk"]
                     name = url_data["name"]
                     content = url_data["content"]
-                    futures.append(executor.submit(main, url, f"./testing/{timestamp}/{name}_{content}"))
+                    futures.append(executor.submit(main, url, f"./results/{timestamp}/{name}_{content}"))
 
             # Wait for all the futures to complete
             concurrent.futures.wait(futures)
-
+        
+        
         time.sleep(1)
         current_time = time.time()
-        elapsed_time = int((current_time - start_time)//60)
+        elapsed_time = (current_time - start_time)
         iteration += 1
 
         #### REMOVE - ONLY FOR TESTING ###
         if iteration == 3:
             pass
-            break
+            #break
     
     
-    print(f"\n\niteration:{iteration} -- elapsed time= {elapsed_time} sec")
+    print(f"\n\niteration:{iteration} -- elapsed time= {elapsed_time} min")
     print("F I N I S H E D.")

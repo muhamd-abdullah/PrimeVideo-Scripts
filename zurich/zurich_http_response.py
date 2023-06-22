@@ -7,13 +7,63 @@ import csv
 import os
 import concurrent.futures
 from urllib.parse import urlparse
-import socket
 from urllib.parse import urlparse
+import http.client
 
 
-server_ips ={
-    "zurich": "18.165.183.81"
+pop_ips ={
+'FRA51-M1' : '54.182.218.101',
+'FRA54-M3' : '54.182.220.122',
+'FRA52-M2' : '54.182.219.121',
+'SFO50-M3' : '54.240.131.114',
+'SFO5-M1' : '54.240.129.122',
+'SFO20-M2' : '54.240.130.99',
+'AMS51-M1' : '54.182.215.109',
+'AMS52-M2' : '54.182.216.113',
+'AMS53-M3' : '54.182.217.120',
+'LHR50-M1' : '54.182.235.102',
+'LHR61-M2' : '54.182.171.116',
+'LHR62-M3' : '54.182.190.119',
+'LHR51-M2' : '54.182.199.108',
+'LHR52-M3' : '54.182.200.122',
+'LHR4-M1' : '54.182.198.104',
+'ZRH55-P1' : '18.165.183.115',
+'MXP64-P2' : '108.138.199.35',
+'MXP63-P1' : '18.66.196.124',
+'MXP63-P2' : '18.66.212.34',
+'MRS52-P4' : '18.161.111.71',
+'MRS52-P3' : '18.161.94.90'
 }
+
+# create snapshot file
+def create_snapshot_file(timestamp):
+    keys = ["content"] + list(pop_ips.keys())
+    outputs = []
+
+    for file_name in os.listdir(f"./results/{timestamp}/"): 
+        if file_name.endswith('.csv') and "0_snapshot" not in file_name:
+            with open(f"./results/{timestamp}/"+ file_name, 'r') as csv_file:
+                data = {key : " " for key in keys}
+                data["content"] = file_name.replace(".csv", "")
+                #print(f"\n\n\n\n\n{file_name}:\n")
+                csv_reader = csv.DictReader(csv_file)
+                for row in csv_reader:
+                    pop = row["X-Amz-Cf-Pop"]
+                    age = row["Age"]
+                    hit_miss = row["X-Cache"].lower()
+                    if "hit" in hit_miss:
+                        data[pop] = 1
+                    elif "miss" in hit_miss:
+                        data[pop] = 0
+                    #print(f"POP:{pop}\nStatus:{hit_miss}\nAge:{age}\n")
+                outputs.append(data)
+    
+    with open(f"./results/{timestamp}/0_snapshot_{timestamp}.csv", 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=keys)
+        if csvfile.tell() == 0: # if csv file is empty
+            writer.writeheader()  # Write the header row
+        writer.writerows(outputs)  # Write the data rows
+        print("\n\n\n\nSnapshot created.\n\n")
 
 
 def traceroute(target, max_hops=30, timeout=1):
@@ -27,13 +77,14 @@ def traceroute(target, max_hops=30, timeout=1):
     try:
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         output, error = process.communicate()
-        if error:
+        if error and "hops max" not in error: # in mac, error returns the first line of output
             raise Exception(f"traceroute command failed")
         
         hops_ip = []
         hops_hostname = []
         lines = output.strip().split('\n')
-        lines = lines[1:] # skip first line
+        if "hops max" not in error: # in mac, we dont need to skip the first line
+            lines = lines[1:] # skip the first line if ubuntu
         
         for line in lines:
             ip_address = ""
@@ -58,12 +109,12 @@ def traceroute(target, max_hops=30, timeout=1):
             hops_hostname.append(host_name)
 
         if "*" in hops_ip[-1] and len(hops_ip) == 30:
-            print(f"traceroute incomplete for {target} !\n")
+            #print(f"traceroute incomplete for {target} !\n")
             return hops_ip, []
         return hops_ip, hops_hostname
     
     except Exception as e:
-        print(f"traceroute failed with error: {e}")
+        #print(f"traceroute failed with error: {e}")
         return [], []
 
 
@@ -75,65 +126,70 @@ def get_http_response(url, server_ip):
     rest_of_url = parsed_url.path + "?" + parsed_url.query
     print(f"\nCF_Server: {server_ip}\nchunk_hostname: {hostname}\nchuck_URL: {rest_of_url}")
 
-    # Define the server address and port
-    server_address = (server_ip, 80)
+    method = "HEAD"
+    custom_headers = {
+        "Host": hostname,
+        "Range": "bytes=0-"
+    }
 
-    # Create a TCP socket
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    # Connect to the server
-    client_socket.connect(server_address)
-    print(f"TCP connection successfully created to {server_ip}\n\n")
-
-    # Send the GET request
-    request = f"HEAD {rest_of_url} HTTP/1.1\r\nHost: {hostname}\r\nRange: bytes=0-\r\n\r\n"
-    client_socket.send(request.encode())
-
-    # Receive the response
-    response = b''
-    while b'\r\n\r\n' not in response:
-        chunk = client_socket.recv(4096)
-        if not chunk:
-            break
-        response += chunk
-
-    # Decode and print the response headers
-    decoded_response = response.decode('iso-8859-1')
-    header_end = decoded_response.index('\r\n\r\n') + 4
-    headers = decoded_response[:header_end]
-
-    # Parse the headers into a dictionary
-    header_lines = headers.split('\r\n')
+    attempt = 1
+    max_attempts = 2
+    timeout = 3
     header_dict = {}
-    for line in header_lines[1:-2]:  # Skip the first line and last line
-        key, value = line.split(': ', 1)
-        header_dict[key] = value
 
-    # Close the socket
-    client_socket.close()
+    while attempt <= max_attempts:
+        try:
+            conn = http.client.HTTPConnection(server_ip, port=80, timeout=timeout)
+            conn.request(method, rest_of_url, body=None, headers=custom_headers)
 
+            # Get the response
+            response = conn.getresponse()
+
+            # Print the response status code
+            print("Response Status:", response.status)
+
+            # Print the response headers
+            #print("Response Headers:")
+            for header, value in response.getheaders():
+                #print(f"{header}: {value}")
+                header_dict[header] = value
+
+            # Close the connection
+            conn.close()
+
+            # Exit the loop since the request was successful
+            break
+
+        except Exception as e:
+            print(f"Error: {str(e)}. Retrying... (Attempt {attempt}/{max_attempts})")
+            attempt += 1
+            conn.close()
+    else:
+        print(f"Max attempts reached ({max_attempts}). Exiting...")
+        conn.close()
+    conn.close()
     return header_dict
 
 
 traceroutes_ips = {}
 traceroutes_hnames = {}
-server_ip = "18.165.183.81"
 
-def main(url, output_filename):
+def main(url, output_filename, server_ip):
     print("- "*30, "\n", output_filename, "\n", "- "*30)
     outputs = [] # it'll just store 1 result, its like that only to be given to write into csv file since it takes list of dicts as input
     keys = ['timestamp(dd-mm-yyyy hh:mm:ss:ms)', 'responseIP', 'latency(ms)', 'traceroute_ips', 'traceroute_hnames', 'hop count', 'Content-Type', 'Content-Length', 'Connection', 'Date', 'Last-Modified', 'ETag', 'x-amz-storage-class', 'x-amz-server-side-encryption', 'x-amz-meta-dv-checksum-sha-1', 'x-amz-meta-dv-checksum-md5', 'x-amz-meta-dv-checksum-sha-256', 'Accept-Ranges', 'Server', 'X-Server-IP', 'X-Server-IP_hops', 'X-Server-IP_hnames', 'X-Server-IP_hopcount','X-Cache', 'Via', 'X-Amz-Cf-Pop', 'X-Amz-Cf-Id', 'Age', 'url', 'info', "reasponseHeaders"]
     data = {key : " " for key in keys}
- 
+    data.update({'responseIP': server_ip})
+    data.update({'url': url})
+    timestamp = datetime.now().strftime("%d-%m-%Y_%H:%M:%S:%f")
+    data.update({'timestamp(dd-mm-yyyy hh:mm:ss:ms)': timestamp})
+
     try:
-        timestamp = datetime.now().strftime("%d-%m-%Y_%H:%M:%S:%f")
-        
         # Step-1: Get HTTP Response
         response_headers = get_http_response(url, server_ip)
-        data.update({'timestamp(dd-mm-yyyy hh:mm:ss:ms)': timestamp, 'url': url, 'responseIP': server_ip})
 
         # Step-2: Measure latency
-        print("measuring latency...")
+        #print("measuring latency...")
         latency = measure_latency(host=server_ip, port=443, runs=5, timeout=1)
         if latency:
             latency = min(latency)
@@ -142,34 +198,32 @@ def main(url, output_filename):
         data.update({'latency(ms)': latency})
 
         # print server IP and latency
-        print("Server IP:", server_ip)
-        print("Latency:", latency, "ms")
+        #print("Server IP:", server_ip)
+        #print("Latency:", latency, "ms")
 
         # print all HTTP response headers
-        print("Response Headers:")
+        #print("Response Headers:")
         for header, value in response_headers.items():
-            print(f"{header}: {value}")
+            #print(f"{header}: {value}")
             if header in data:
                 data[header] = value
         data["reasponseHeaders"] = response_headers
-        
-        '''
+
         # Step-3: Traceroute for response IP
         hops_ip, hops_hostname = [], []
         hop_count = 0
         if server_ip not in traceroutes_ips:
-            print(f"running traceroute for response IP: {server_ip} ....\n")
+            #print(f"running traceroute for response IP: {server_ip} ....\n")
             hops_ip, hops_hostname = traceroute(server_ip)
             traceroutes_ips[server_ip] = hops_ip
             traceroutes_hnames[server_ip] = hops_hostname
         else:
-            print(f"\ntraceroute already done for {server_ip}!!!!!!")
+            #print(f"\ntraceroute already done for {server_ip}!!!!!!")
             hops_ip = traceroutes_ips[server_ip]
             hops_hostname = traceroutes_hnames[server_ip]
         
         hop_count = len(hops_hostname)
         data.update({'traceroute_ips': hops_ip, 'traceroute_hnames': hops_hostname, 'hop count': hop_count})
-
 
         # Step-4: Traceroute for X-Server-IP
         hops_ip, hops_hostname = [], []
@@ -177,19 +231,18 @@ def main(url, output_filename):
         x_server_ip = data['X-Server-IP']
         if x_server_ip != " ":
             if x_server_ip not in traceroutes_ips:
-                print(f"running traceroute for X-server: {x_server_ip} ....\n")
+                #print(f"running traceroute for X-server: {x_server_ip} ....\n")
                 hops_ip, hops_hostname = traceroute(x_server_ip)
                 traceroutes_ips[x_server_ip] = hops_ip
                 traceroutes_hnames[x_server_ip] = hops_hostname
             else:
-                print(f"\ntraceroute already done for X-Server-IP {server_ip}!!!!!!")
+                #print(f"\ntraceroute already done for X-Server-IP {server_ip}!!!!!!")
                 hops_ip = traceroutes_ips[x_server_ip]
                 hops_hostname = traceroutes_hnames[x_server_ip]
         
             hop_count = len(hops_hostname)
         
         data.update({'X-Server-IP_hops':hops_ip, 'X-Server-IP_hnames':hops_hostname, 'X-Server-IP_hopcount':hop_count})
-        '''
 
         if "my" in output_filename:
             info = "my content hosted on CloudFront"
@@ -209,7 +262,7 @@ def main(url, output_filename):
         if csvfile.tell() == 0: # if csv file is empty
             writer.writeheader()  # Write the header row
         writer.writerows(outputs)  # Write the data rows
-        print("D O N E.\n\n")
+        print(f"{output_filename} D O N E.\n\n")
 
 
 def get_url_dicts_from_csv(filename):
@@ -223,6 +276,7 @@ def get_url_dicts_from_csv(filename):
 
 if __name__ == '__main__':
     timestamp = datetime.now().strftime("%d-%m-%Y_%Hhh_%Mmm")
+    #timestamp = "22-06-2023_09hh_47mm" ### REMOVE !!!!! ###
     print("starting the script at: ",timestamp)
     
     results_directory = f"./results/{timestamp}/"
@@ -234,15 +288,14 @@ if __name__ == '__main__':
 
     start_time = time.time()
     elapsed_time = 0 # in minutes
-    iteration = 0
     
     url_dicts_list = get_url_dicts_from_csv("merged_urls.csv")
-
-    while elapsed_time < 721:
-        print("\n"*20, "*"*20, f" iteration:{iteration+1} -- elapsed time= {elapsed_time} sec", "*"*20,"\n\n")
+    
+    for pop, server_ip in pop_ips.items():
+        print("\n"*20, "*"*20, f" POP: {pop} -- elapsed time= {elapsed_time} min", "*"*20,"\n\n")
         
         # Number of urls to process in parallel
-        chunk_size = 125    
+        chunk_size = 75    
 
         # Create a ThreadPoolExecutor with max_workers set to the chunk size
         with concurrent.futures.ThreadPoolExecutor(max_workers=chunk_size) as executor:
@@ -260,21 +313,44 @@ if __name__ == '__main__':
                     url = url_data["url_chunk"]
                     name = url_data["name"]
                     content = url_data["content"]
-                    futures.append(executor.submit(main, url, f"./results/{timestamp}/{name}_{content}"))
+                    futures.append(executor.submit(main, url, f"./results/{timestamp}/{name}_{content}", server_ip))
 
             # Wait for all the futures to complete
-            concurrent.futures.wait(futures)
-
-        time.sleep(1)
+            concurrent.futures.wait(futures, timeout=120)
+            print("\n"*20,f"POP:{pop} COMPLETED" ,"*"*20, "\n"*20)
+                  
+        time.sleep(5)
         current_time = time.time()
         elapsed_time = int((current_time - start_time)//60)
-        iteration += 1
-
-        #### REMOVE - ONLY FOR TESTING ###
-        if iteration == 1:
-            pass
-            break
     
-    
-    print(f"\n\niteration:{iteration} -- elapsed time= {elapsed_time} min")
+    print(f"\n\nelapsed time= {elapsed_time} min\n")
     print("F I N I S H E D.")
+    
+    # Step-5: Create snapshot for all content
+    pop_ips ={
+    'FRA51-M1' : '54.182.218.101',
+    'FRA54-M3' : '54.182.220.122',
+    'FRA52-M2' : '54.182.219.121',
+    'SFO50-M3' : '54.240.131.114',
+    'SFO5-M1' : '54.240.129.122',
+    'SFO20-M2' : '54.240.130.99',
+    'AMS51-M1' : '54.182.215.109',
+    'AMS52-M2' : '54.182.216.113',
+    'AMS53-M3' : '54.182.217.120',
+    'LHR50-M1' : '54.182.235.102',
+    'LHR61-M2' : '54.182.171.116',
+    'LHR62-M3' : '54.182.190.119',
+    'LHR51-M2' : '54.182.199.108',
+    'LHR52-M3' : '54.182.200.122',
+    'LHR4-M1' : '54.182.198.104',
+    'ZRH55-P1' : '18.165.183.115',
+    'MXP64-P2' : '108.138.199.35',
+    'MXP63-P1' : '18.66.196.124',
+    'MXP63-P2' : '18.66.212.34',
+    'MRS52-P4' : '18.161.111.71',
+    'MRS52-P3' : '18.161.94.90'
+    }
+    print("creating snapshot...")
+    time.sleep(5)
+    create_snapshot_file(timestamp)
+    print("snapshot created.")
