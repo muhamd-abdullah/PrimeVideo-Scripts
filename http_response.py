@@ -185,7 +185,7 @@ if __name__ == '__main__':
     
     url_dicts_list = get_url_dicts_from_csv("merged_urls.csv")
 
-    while elapsed_time < 721:
+    while elapsed_time < 1441:
         print("\n"*20, "*"*20, f" iteration:{iteration+1} -- elapsed time= {elapsed_time} sec", "*"*20,"\n\n")
         
         # Number of urls to process in parallel
