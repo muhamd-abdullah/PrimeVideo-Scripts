@@ -184,6 +184,8 @@ if __name__ == '__main__':
     iteration = 0
     
     url_dicts_list = get_url_dicts_from_csv("merged_urls.csv")
+    my_url_dicts_list = get_url_dicts_from_csv("my_urls.csv")
+    url_dicts_list = my_url_dicts_list + url_dicts_list
 
     while elapsed_time < 1441:
         print("\n"*20, "*"*20, f" iteration:{iteration+1} -- elapsed time= {elapsed_time} sec", "*"*20,"\n\n")
