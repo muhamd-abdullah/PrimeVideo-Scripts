@@ -168,6 +168,16 @@ def get_url_dicts_from_csv(filename):
     return result
 
 
+def modify_url(url, replace_with):
+    new_url = url
+    for i in range(6,10):
+        url_to_check = f"video_{i}.mp4"
+        if url_to_check in url:
+            new_url = url.replace(url_to_check, f"video_{replace_with}.mp4")
+            break
+    return new_url
+
+
 if __name__ == '__main__':
     timestamp = datetime.now().strftime("%d-%m-%Y_%Hhh_%Mmm")
     print("starting the script at: ",timestamp)
@@ -187,7 +197,7 @@ if __name__ == '__main__':
     my_url_dicts_list = get_url_dicts_from_csv("my_urls.csv")
     url_dicts_list = my_url_dicts_list + url_dicts_list
 
-    while elapsed_time < 1441:
+    while elapsed_time < 361:
         print("\n"*20, "*"*20, f" iteration:{iteration+1} -- elapsed time= {elapsed_time} sec", "*"*20,"\n\n")
         
         # Number of urls to process in parallel
@@ -207,6 +217,7 @@ if __name__ == '__main__':
                 # Submit the process_string function to the executor for each string in the chunk
                 for url_data in chunk:
                     url = url_data["url_chunk"]
+                    url = modify_url(url, "5")
                     name = url_data["name"]
                     content = url_data["content"]
                     futures.append(executor.submit(main, url, f"./results/{timestamp}/{name}_{content}"))
@@ -214,7 +225,8 @@ if __name__ == '__main__':
             # Wait for all the futures to complete
             concurrent.futures.wait(futures)
 
-        time.sleep(1)
+        time.sleep(5)
+        print("sleeping for 5 sec...")
         current_time = time.time()
         elapsed_time = int((current_time - start_time)//60)
         iteration += 1
