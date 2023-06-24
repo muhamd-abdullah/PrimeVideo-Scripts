@@ -32,7 +32,11 @@ pop_ips ={
 'MXP63-P1' : '18.66.196.124',
 'MXP63-P2' : '18.66.212.34',
 'MRS52-P4' : '18.161.111.71',
-'MRS52-P3' : '18.161.94.90'
+'MRS52-P3' : '18.161.94.90',
+'VIE50-P1' : '18.66.26.26',
+'MXP53-P3' : '3.160.212.5',
+'MXP64-C2' : '99.86.159.35',
+'ZRH50-C1' : '13.224.103.115',
 }
 
 # create snapshot file
@@ -274,9 +278,19 @@ def get_url_dicts_from_csv(filename):
     return result
 
 
+def modify_url(url, replace_with):
+    new_url = url
+    for i in range(6,10):
+        url_to_check = f"video_{i}.mp4"
+        if url_to_check in url:
+            new_url = url.replace(url_to_check, f"video_{replace_with}.mp4")
+            break
+    return new_url
+
+
 if __name__ == '__main__':
     timestamp = datetime.now().strftime("%d-%m-%Y_%Hhh_%Mmm")
-    #timestamp = "22-06-2023_09hh_47mm" ### REMOVE !!!!! ###
+    timestamp = "22-06-2023_23hh_55mm" ### REMOVE !!!!! ###
     print("starting the script at: ",timestamp)
     
     results_directory = f"./results/{timestamp}/"
@@ -290,12 +304,14 @@ if __name__ == '__main__':
     elapsed_time = 0 # in minutes
     
     url_dicts_list = get_url_dicts_from_csv("merged_urls.csv")
+    my_url_dicts_list = get_url_dicts_from_csv("my_urls.csv")
+    url_dicts_list = my_url_dicts_list + url_dicts_list
     
     for pop, server_ip in pop_ips.items():
         print("\n"*20, "*"*20, f" POP: {pop} -- elapsed time= {elapsed_time} min", "*"*20,"\n\n")
         
         # Number of urls to process in parallel
-        chunk_size = 75    
+        chunk_size = 50    
 
         # Create a ThreadPoolExecutor with max_workers set to the chunk size
         with concurrent.futures.ThreadPoolExecutor(max_workers=chunk_size) as executor:
@@ -311,17 +327,19 @@ if __name__ == '__main__':
                 # Submit the process_string function to the executor for each string in the chunk
                 for url_data in chunk:
                     url = url_data["url_chunk"]
+                    url = modify_url(url, "4")
                     name = url_data["name"]
                     content = url_data["content"]
                     futures.append(executor.submit(main, url, f"./results/{timestamp}/{name}_{content}", server_ip))
 
             # Wait for all the futures to complete
-            concurrent.futures.wait(futures, timeout=120)
+            concurrent.futures.wait(futures)
             print("\n"*20,f"POP:{pop} COMPLETED" ,"*"*20, "\n"*20)
-                  
-        time.sleep(5)
+
         current_time = time.time()
         elapsed_time = int((current_time - start_time)//60)
+        print(f"sleeping for 5 sec ..... (elapsed:{elapsed_time})\n\n")          
+        time.sleep(5)
     
     print(f"\n\nelapsed time= {elapsed_time} min\n")
     print("F I N I S H E D.")
@@ -348,7 +366,11 @@ if __name__ == '__main__':
     'MXP63-P1' : '18.66.196.124',
     'MXP63-P2' : '18.66.212.34',
     'MRS52-P4' : '18.161.111.71',
-    'MRS52-P3' : '18.161.94.90'
+    'MRS52-P3' : '18.161.94.90',
+    'VIE50-P1' : '18.66.26.26',
+    'MXP53-P3' : '3.160.212.5',
+    'MXP64-C2' : '99.86.159.35',
+    'ZRH50-C1' : '13.224.103.115',
     }
     print("creating snapshot...")
     time.sleep(5)
