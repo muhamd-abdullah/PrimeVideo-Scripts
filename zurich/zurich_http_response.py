@@ -290,7 +290,6 @@ def modify_url(url, replace_with):
 
 if __name__ == '__main__':
     timestamp = datetime.now().strftime("%d-%m-%Y_%Hhh_%Mmm")
-    timestamp = "22-06-2023_23hh_55mm" ### REMOVE !!!!! ###
     print("starting the script at: ",timestamp)
     
     results_directory = f"./results/{timestamp}/"
@@ -327,7 +326,7 @@ if __name__ == '__main__':
                 # Submit the process_string function to the executor for each string in the chunk
                 for url_data in chunk:
                     url = url_data["url_chunk"]
-                    url = modify_url(url, "4")
+                    url = modify_url(url, "5")
                     name = url_data["name"]
                     content = url_data["content"]
                     futures.append(executor.submit(main, url, f"./results/{timestamp}/{name}_{content}", server_ip))
