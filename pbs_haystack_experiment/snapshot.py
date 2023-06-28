@@ -337,8 +337,8 @@ if __name__ == '__main__':
                 for url_data in chunk:
                     url = url_data["url_chunk"]
                     #print(f"old url:\n{url}\n")
-                    prime_replace_with = 10
-                    pbs_replace_with = 9
+                    prime_replace_with = 2
+                    pbs_replace_with = 22
                     url = modify_url(url, f"{prime_replace_with}", f"{pbs_replace_with}")
                     with open(f"./snapshots/{timestamp}/0_metadata_{timestamp}.txt", "w") as file:
                         file.write(f"url = modify_url(url, \"{prime_replace_with}\", \"{pbs_replace_with}\")\n")

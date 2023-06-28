@@ -195,9 +195,9 @@ if __name__ == '__main__':
     elapsed_time = 0 # in minutes
     iteration = 0
     
-    url_dicts_list = get_url_dicts_from_csv("urls_testing_pbs.csv")
+    url_dicts_list = get_url_dicts_from_csv("urls_pbs_haystack_prime_my.csv")
 
-    while elapsed_time < 1081:
+    while elapsed_time < 1110:
         print("\n"*20, "*"*20, f" iteration:{iteration+1} -- elapsed time= {elapsed_time} sec", "*"*20,"\n\n")
         
         # Number of urls to process in parallel

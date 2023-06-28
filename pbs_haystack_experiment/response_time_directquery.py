@@ -10,7 +10,7 @@ import concurrent.futures
 from urllib.parse import urlparse
 import http.client
 
-server_ip = "18.165.183.115" 
+server_ip = "13.224.103.115" # ZRH50-C1 
 
 
 def traceroute(target, max_hops=30, timeout=1):
@@ -286,7 +286,7 @@ def modify_url(url, replace_with, replace_with_pbc):
 
 if __name__ == '__main__':
     timestamp = datetime.now().strftime("%d-%m-%Y_%Hhh_%Mmm")
-    timestamp = timestamp + "_directquery"
+    timestamp = timestamp + server_ip.replace(".","-")
     print("starting the script at: ",timestamp)
     
     results_directory = f"./testing/{timestamp}/"
@@ -296,23 +296,23 @@ if __name__ == '__main__':
     else:
         print("result diretory already exists!!!")
 
-    url_dicts_list = get_url_dicts_from_csv("urls_testing_pbs.csv")
+    url_dicts_list = get_url_dicts_from_csv("urls_pbs_haystack_prime_my.csv")
 
     start_time = time.time()
     elapsed_time = 0 # in minutes
     iteration = 1
 
-    # RESPONSE TIME FOR PBS, HAYSTACK
+    # RESPONSE TIMES FOR ALL
     for k, content_data in  enumerate(url_dicts_list):
         print("\n"*20, "*"*20, f" name:{content_data['name']} ({k/len(url_dicts_list)}) -- elapsed time= {elapsed_time} sec", "*"*20,"\n\n")
         content_type = content_data["content"]
         
         if "pbs" in content_type or "haystack" in content_type: # pbs, haystack
-            chunk_range = range(10) 
+            chunk_range = range(500) 
         elif "my_content" in content_type: # my content
             continue
         else:
-            chunk_range = range(10) # this is no. of MBs prime will go through
+            chunk_range = range(500) # this is no. of MBs prime will go through
         
         current_url_dicts_list = []
         for chunk_i in chunk_range:
@@ -346,7 +346,7 @@ if __name__ == '__main__':
                 print("\n\n\nFound Error from Cloudfront ---> STOPPING!!!!!!\n\n\n")
                 break
 
-        time.sleep(1)
+        time.sleep(0.1)
         current_time = time.time()
         elapsed_time = int((current_time - start_time)//60)
 
