@@ -197,7 +197,7 @@ if __name__ == '__main__':
     my_url_dicts_list = get_url_dicts_from_csv("my_urls.csv")
     url_dicts_list = my_url_dicts_list + url_dicts_list
 
-    while elapsed_time < 361:
+    while elapsed_time < 201:
         print("\n"*20, "*"*20, f" iteration:{iteration+1} -- elapsed time= {elapsed_time} sec", "*"*20,"\n\n")
         
         # Number of urls to process in parallel
@@ -225,8 +225,9 @@ if __name__ == '__main__':
             # Wait for all the futures to complete
             concurrent.futures.wait(futures)
 
-        time.sleep(5)
-        print("sleeping for 5 sec...")
+        
+        print("\n\n\n\nsleeping for 5 sec ...")
+        time.sleep(6)
         current_time = time.time()
         elapsed_time = int((current_time - start_time)//60)
         iteration += 1

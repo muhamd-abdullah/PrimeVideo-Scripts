@@ -10,9 +10,36 @@ from urllib.parse import urlparse
 from urllib.parse import urlparse
 import http.client
 
-
+'''
 pop_ips ={
 'FRA51-M1' : '54.182.218.101',
+'FRA54-M3' : '54.182.220.122',
+'FRA52-M2' : '54.182.219.121',
+'SFO50-M3' : '54.240.131.114',
+'SFO5-M1' : '54.240.129.122',
+'SFO20-M2' : '54.240.130.99',
+'AMS51-M1' : '54.182.215.109',
+'AMS52-M2' : '54.182.216.113',
+'AMS53-M3' : '54.182.217.120',
+'LHR50-M1' : '54.182.235.102',
+'LHR61-M2' : '54.182.171.116',
+'LHR62-M3' : '54.182.190.119',
+'LHR51-M2' : '54.182.199.108',
+'LHR52-M3' : '54.182.200.122',
+'LHR4-M1' : '54.182.198.104',
+'ZRH55-P1' : '18.165.183.115',
+'MXP64-P2' : '108.138.199.35',
+'MXP63-P1' : '18.66.196.124',
+'MXP63-P2' : '18.66.212.34',
+'MRS52-P4' : '18.161.111.71',
+'MRS52-P3' : '18.161.94.90',
+'VIE50-P1' : '18.66.26.26',
+'MXP53-P3' : '3.160.212.5',
+'MXP64-C2' : '99.86.159.35',
+'ZRH50-C1' : '13.224.103.115',
+}
+'''
+pop_ips ={
 'FRA54-M3' : '54.182.220.122',
 'FRA52-M2' : '54.182.219.121',
 'SFO50-M3' : '54.240.131.114',
@@ -194,7 +221,7 @@ def main(url, output_filename, server_ip):
 
         # Step-2: Measure latency
         #print("measuring latency...")
-        latency = measure_latency(host=server_ip, port=443, runs=5, timeout=1)
+        latency = measure_latency(host=server_ip, port=443, runs=2, timeout=1)
         if latency:
             latency = min(latency)
         else:
@@ -290,6 +317,7 @@ def modify_url(url, replace_with):
 
 if __name__ == '__main__':
     timestamp = datetime.now().strftime("%d-%m-%Y_%Hhh_%Mmm")
+    timestamp = "25-06-2023_12hh_15mm"
     print("starting the script at: ",timestamp)
     
     results_directory = f"./results/{timestamp}/"
@@ -310,7 +338,7 @@ if __name__ == '__main__':
         print("\n"*20, "*"*20, f" POP: {pop} -- elapsed time= {elapsed_time} min", "*"*20,"\n\n")
         
         # Number of urls to process in parallel
-        chunk_size = 50    
+        chunk_size = 200    
 
         # Create a ThreadPoolExecutor with max_workers set to the chunk size
         with concurrent.futures.ThreadPoolExecutor(max_workers=chunk_size) as executor:
@@ -326,7 +354,7 @@ if __name__ == '__main__':
                 # Submit the process_string function to the executor for each string in the chunk
                 for url_data in chunk:
                     url = url_data["url_chunk"]
-                    url = modify_url(url, "5")
+                    url = modify_url(url, "3")
                     name = url_data["name"]
                     content = url_data["content"]
                     futures.append(executor.submit(main, url, f"./results/{timestamp}/{name}_{content}", server_ip))

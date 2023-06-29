@@ -142,7 +142,7 @@ def get_http_response(url, server_ip, input_hostname):
     }
 
     attempt = 1
-    max_attempts = 2
+    max_attempts = 1
     timeout = 3
     header_dict = {}
 
@@ -337,8 +337,8 @@ if __name__ == '__main__':
                 for url_data in chunk:
                     url = url_data["url_chunk"]
                     #print(f"old url:\n{url}\n")
-                    prime_replace_with = 2
-                    pbs_replace_with = 22
+                    prime_replace_with = 13
+                    pbs_replace_with = 16
                     url = modify_url(url, f"{prime_replace_with}", f"{pbs_replace_with}")
                     with open(f"./snapshots/{timestamp}/0_metadata_{timestamp}.txt", "w") as file:
                         file.write(f"url = modify_url(url, \"{prime_replace_with}\", \"{pbs_replace_with}\")\n")
