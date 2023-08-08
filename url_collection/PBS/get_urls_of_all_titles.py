@@ -16,13 +16,15 @@ urls_main_top = {
     'all' : 'https://www.pbs.org/shows/?search=&genre=all-genres&source=all-sources&sortBy=popular&stationId=bf21732a-f52f-46ca-bbb6-4ae9663a94bf'
 }
 
+content_names = [] # store to avoid duplicate movie/tv titles
 
 async def get_url_of_vidchunk(url):
+    print("\nvisiting: ",url,"\n")
     browser = await launch(userDataDir=profile_path, headless=False, executablePath= exec_path)
     chunk_url = [""]
 
     def interception_fun(response):
-        if (".ts" in response.url and "video" in response.url) or (".m4s" in response.url and "segment_" in response.url and "video" in response.url):
+        if (".ts" in response.url and "video" in response.url):
             # Response logic goes here
             print("URL:", response.url, "\n")
             chunk_url[0] = response.url
@@ -104,8 +106,9 @@ async def get_video_links(url):
 async def scroll_to_bottom(page, increment=700):
     all_link_data = []
     shows_count = 0
-    MAX_SHOWS = 5 ### CHANGE IT !!!!
-    
+    MAX_SHOWS = 200 ### CHANGE IT !!!!
+    shows_url = []
+
     while True:
         link_data = await page.evaluate('''() => {
             const links = Array.from(document.querySelectorAll('[href]'));
@@ -125,12 +128,13 @@ async def scroll_to_bottom(page, increment=700):
         await asyncio.sleep(2)  # Adjust the sleep time as needed
         
         current_scroll = await page.evaluate('window.scrollY')
-
+        
         for data in link_data:
-            if "https://www.pbs.org/show/" in data['href']:
+            if "https://www.pbs.org/show/" in data['href'] and data['href'] not in shows_url:
                 print(data['href'])
                 shows_count += 1
                 all_link_data.append(data)
+                shows_url.append(data['href'])
 
         print(f"current_scroll={current_scroll}, previous_scroll={previous_scroll}")
         if current_scroll == previous_scroll or shows_count >= MAX_SHOWS:
@@ -152,13 +156,19 @@ async def get_link_addresses(url):
 async def get_all_links(url):
     all_link_data = await get_link_addresses(url)
     all_link_data_new = [] # removes duplicates, add videopage url
-
+    global content_names
     for data in all_link_data:
-        name = data['text']
-        url_title = data['href']
-        url_videopage = ''
-        data_new = {'name':name, 'url_titlepage':url_title, 'url_videopage': url_videopage}
-        all_link_data_new.append(data_new)
+        try:
+            name = data['href'].rsplit("/", 2)[-2]
+            if name in content_names:
+                continue
+            url_title = data['href']
+            url_videopage = ''
+            data_new = {'name':name, 'url_titlepage':url_title, 'url_videopage': url_videopage}
+            all_link_data_new.append(data_new)
+            content_names.append(name)
+        except:
+            continue
             
     return all_link_data_new
 
@@ -188,31 +198,50 @@ if __name__ == '__main__':
         print("\n\n")
         for data in all_link_data_new:
             count += 1
-            name = data['url_titlepage'].rsplit("/", 2)[-2]
-            data['name'] = name
+            name = data['name']
             print(f"**** {count} out of {len(all_link_data_new)} --- {content} ~~~ elapsed: {elapsed_time} min ****")
 
             current_time = time.time()
             elapsed_time = int((current_time - start_time)//60)
-
+            print(name, name in already_collected,"\n\n")
             if name+"\n" in already_collected:
                 print(f"{name} is already collected!\n\n\n\n\n\n")
                 continue
         
             ####
+            print("getting video links...")
+            video_links = []
             video_links = asyncio.get_event_loop().run_until_complete(get_video_links(data['url_titlepage']))
+            
+            already_file = open("already_collected.txt", 'a')
+            already_file.write(name+"\n")
 
+            if len(video_links) < 1:
+                print("no video links found! skipping...\n\n\n\n\n\n")
+                continue
+            
+            url_chunk = ''
+            visited = []
+            url_chunks_collected = []
+            
             for video_link in video_links:
-                print(video_link)
+                if video_link in visited:
+                    continue
+                else:
+                    visited.append(video_link)
+                
+                print("\nchecking out: ",video_link,"\n")
                 url_chunk = asyncio.get_event_loop().run_until_complete(get_url_of_vidchunk(video_link))
-                if url_chunk:
+                if url_chunk != '':
                     data['url_videopage'] = video_link
                     break
             ###
 
-            if url_chunk == "":
+            if url_chunk == '' or url_chunk in url_chunks_collected:
                 print(f"failed to get url_chunk of {name}\n")
-
+                continue
+            else:
+                url_chunks_collected.append(url_chunk)
 
             url_titlepage = data['url_titlepage']
             url_videopage = data['url_videopage']
@@ -231,8 +260,6 @@ if __name__ == '__main__':
                     writer.writeheader()  # Write the header row
                 writer.writerow(data)  # Write the data rows
             
-            already_file = open("already_collected.txt", 'a')
-            already_file.write(name+"\n")
 
     total_count = 0
     for content, count in count_dict.items():
