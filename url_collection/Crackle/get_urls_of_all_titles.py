@@ -12,19 +12,22 @@ Output: This returns individual URLs of the title page, videopage, and chunk of 
 profile_path = '/Users/abdullah/Library/Application Support/Google/Chrome/Default'
 exec_path = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
+
 urls_main_top = {
-    'all' : 'https://www.pbs.org/shows/?search=&genre=all-genres&source=all-sources&sortBy=popular&stationId=bf21732a-f52f-46ca-bbb6-4ae9663a94bf'
+    "movies": "https://www.crackle.com/movies",
+    "tvshows" : "https://www.crackle.com/tv-shows"
 }
+
 
 content_names = [] # store to avoid duplicate movie/tv titles
 
+
 async def get_url_of_vidchunk(url):
-    print("\nvisiting: ",url,"\n")
     browser = await launch(userDataDir=profile_path, headless=False, executablePath= exec_path)
     chunk_url = [""]
 
     def interception_fun(response):
-        if (".ts" in response.url and "video" in response.url):
+        if (".mp4" in response.url and "_video_" in response.url):
             # Response logic goes here
             print("URL:", response.url, "\n")
             chunk_url[0] = response.url
@@ -36,24 +39,23 @@ async def get_url_of_vidchunk(url):
     
     try:
         page = await browser.newPage()
-        await page.goto(url)
+        await page.goto(url, waitUntil='networkidle0')
         page.on('response', interception_fun)
+        
+        #await asyncio.sleep(60000) #### FOR SIGN-IN !!!!!
 
         await page.waitForSelector('body')
 
-        # Find the iframe element by its class name
-        iframe_selector = '.video-player__iframe'
-        iframe_element = await page.waitForSelector(iframe_selector)
-
-        # Switch to the iframe
-        iframe = await iframe_element.contentFrame()
-
-        # Find the video element within the iframe
-        video_selector = 'video'
-        video_element = await iframe.waitForSelector(video_selector)
-
-        # Play the video
-        await iframe.evaluate('(video) => video.play()', video_element)
+        # Click only buttons with text 'Watch'
+        await page.evaluate('''async () => {
+            const buttons = document.querySelectorAll('button');
+            for (const button of buttons) {
+                if (button.textContent.includes('Watch') && !button.textContent.includes('list')) {
+                    button.click();
+                    await new Promise(resolve => setTimeout(resolve, 100));  // Wait for 100 ms between clicks
+                }
+            }
+        }''')
 
         start_time = time.time()
         elapsed_time = 0
@@ -61,12 +63,11 @@ async def get_url_of_vidchunk(url):
             if chunk_url[0] != "":
                 break
             else:
-                #await page.waitFor(1000) # load page for 1 more sec
-                await asyncio.sleep(1)
-            
+                print("waiting for 1 more sec")
+                await asyncio.sleep(1) # load page for 1 more sec
             current_time = time.time()
             elapsed_time = current_time - start_time
-            if elapsed_time > 3: # max timeout
+            if elapsed_time > 10: # max timeout in sec
                 break
 
     except Exception as e:
@@ -77,37 +78,13 @@ async def get_url_of_vidchunk(url):
     return chunk_url[0]
 
 
-async def get_video_links(url):
-    print(url)
-    video_links = []
-    browser = await launch(userDataDir=profile_path, headless=False, executablePath= exec_path)
-    page = await browser.newPage()
-    await page.goto(url)
-    link_data = await page.evaluate('''() => {
-        const links = Array.from(document.querySelectorAll('[href]'));
-        const data = links.map(link => {
-            return {
-                href: link.href,
-                text: link.textContent.trim()
-            };
-        });
-        return data;
-    }''')
-
-    for data in link_data:
-            if "www.pbs.org/video/" in data['href']:
-                print(data['href'])
-                video_links.append(data['href'])
-
-    await browser.close()
-    return video_links
-
 
 async def scroll_to_bottom(page, increment=700):
     all_link_data = []
     shows_count = 0
-    MAX_SHOWS = 1000 ### CHANGE IT !!!!
+    MAX_SHOWS = 100 ### CHANGE IT !!!!
     shows_url = []
+    #await asyncio.sleep(2)
 
     while True:
         link_data = await page.evaluate('''() => {
@@ -130,7 +107,7 @@ async def scroll_to_bottom(page, increment=700):
         current_scroll = await page.evaluate('window.scrollY')
         
         for data in link_data:
-            if "https://www.pbs.org/show/" in data['href'] and data['href'] not in shows_url:
+            if "www.crackle.com/details/" in data['href'] and data['href'] not in shows_url:
                 print(data['href'])
                 shows_count += 1
                 all_link_data.append(data)
@@ -145,7 +122,8 @@ async def scroll_to_bottom(page, increment=700):
 async def get_link_addresses(url):
     browser = await launch(userDataDir=profile_path, headless=False, executablePath= exec_path)
     page = await browser.newPage()
-    await page.goto(url)
+    #await page.goto(url)
+    await page.goto(url, waitUntil='networkidle0')
     
     all_link_data = await scroll_to_bottom(page)
 
@@ -157,18 +135,19 @@ async def get_all_links(url):
     all_link_data = await get_link_addresses(url)
     all_link_data_new = [] # removes duplicates, add videopage url
     global content_names
+
     for data in all_link_data:
-        try:
-            name = data['href'].rsplit("/", 2)[-2]
-            if name in content_names:
-                continue
-            url_title = data['href']
-            url_videopage = ''
+        name = data['text']
+        url_title = data['href']
+        #print(data['href'],"\n\n")
+
+        # for video links
+        if "www.crackle.com/details/" in data['href']:
+            print(data['href'])
+            url_videopage = url_title
+            content_names.append(name)
             data_new = {'name':name, 'url_titlepage':url_title, 'url_videopage': url_videopage}
             all_link_data_new.append(data_new)
-            content_names.append(name)
-        except:
-            continue
             
     return all_link_data_new
 
@@ -187,73 +166,50 @@ if __name__ == '__main__':
 
     start_time = time.time()
     elapsed_time = 0
+    genre_count = 0
 
     for content, main_url in urls_main_top.items():
-        print("\n"*10, "*"*25, f"{content}", "*"*25, "\n\n")
+        genre_count += 1
+        print("\n"*10, "*"*25, f"{content} ({genre_count}/{len(urls_main_top)})", "*"*25, "\n\n")
+        
+        # get videopage links
         all_link_data_new = asyncio.get_event_loop().run_until_complete(get_all_links(main_url))
         count_dict[content] = len(all_link_data_new)
         print(f"{content} = {len(all_link_data_new)}")
 
         count = 0  
         print("\n\n")
+        
+        # play video in each link & get chunk url
         for data in all_link_data_new:
             count += 1
-            name = data['name']
-            print(f"**** {count} out of {len(all_link_data_new)} --- {content} ~~~ elapsed: {elapsed_time} min ****")
+            name = data['url_titlepage'].rsplit("/", 1)[-1]
+            data['name'] = name
+            print(f"**** {count} out of {len(all_link_data_new)} --- {content} ({genre_count}/{len(urls_main_top)}) ~~~ elapsed: {elapsed_time} min ****")
 
             current_time = time.time()
             elapsed_time = int((current_time - start_time)//60)
-            print(name, name in already_collected,"\n\n")
+
             if name+"\n" in already_collected:
                 print(f"{name} is already collected!\n\n\n\n\n\n")
                 continue
-        
-            ####
-            print("getting video links...")
-            video_links = []
-            video_links = asyncio.get_event_loop().run_until_complete(get_video_links(data['url_titlepage']))
             
-
-
-            if len(video_links) < 1:
-                print("no video links found! skipping...\n\n\n\n\n\n")
-                continue
-            
-            url_chunk = ''
-            visited = []
-            url_chunks_collected = []
-            
-            for video_link in video_links:
-                if video_link in visited:
-                    continue
-                else:
-                    visited.append(video_link)
-                
-                print("\nchecking out: ",video_link,"\n")
-                url_chunk = asyncio.get_event_loop().run_until_complete(get_url_of_vidchunk(video_link))
-                if url_chunk != '':
-                    data['url_videopage'] = video_link
-                    break
-            ###
-
-            if url_chunk == '' or url_chunk in url_chunks_collected:
-                print(f"failed to get url_chunk of {name}\n")
-                continue
-            else:
-                url_chunks_collected.append(url_chunk)
-
             url_titlepage = data['url_titlepage']
             url_videopage = data['url_videopage']
+            
+            url_chunk = asyncio.get_event_loop().run_until_complete(get_url_of_vidchunk(url_videopage))
+            if url_chunk == "":
+                print(f"failed to get url_chunk of {name}\n")
             
             print("Name:", name)
             print("Titlepage:", url_titlepage)
             print("Videopage:", url_videopage)
             print("Chunk:", url_chunk)
             data['url_chunk'] = url_chunk
-            data['content'] = "pbs_" + content
+            data['content'] = "crackle_" + content
             print("\n"*5)
             
-            with open("url_pbs_" + content + ".csv", 'a', newline='') as csvfile:
+            with open("url_crackle_" + content + ".csv", 'a', newline='') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=keys)
                 if csvfile.tell() == 0: # if csv file is empty
                     writer.writeheader()  # Write the header row
@@ -261,7 +217,6 @@ if __name__ == '__main__':
             
             already_file = open("already_collected.txt", 'a')
             already_file.write(name+"\n")
-            
 
     total_count = 0
     for content, count in count_dict.items():
