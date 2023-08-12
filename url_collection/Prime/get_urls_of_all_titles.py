@@ -43,10 +43,10 @@ urls_main = {
 }
 
 urls_main_top = {
-'url_top_movies': 'https://www.primevideo.com/browse/ref=atv_mv_hom_c_zbfcqv_8_smr?serviceToken=eyJ0eXBlIjoicXVlcnkiLCJuYXYiOnRydWUsInBpIjoiZGVmYXVsdCIsInNlYyI6ImNlbnRlciIsInN0eXBlIjoic2VhcmNoIiwicXJ5IjoicF9uX2VudGl0eV90eXBlPU1vdmllJmluZGV4PWV1LWFtYXpvbi12aWRlby1ldXJvJmFkdWx0LXByb2R1Y3Q9MCZicT0oYW5kIHNvcnQ6J2ZlYXR1cmVkLXJhbmsnIChub3QgKG9yIChvciBhdl9zZWNvbmRhcnlfZ2VucmU6J2F2X3N1YmdlbnJlX2ludGVybmF0aW9uYWxfaW5kaWEnIGF2X3ByaW1hcnlfZ2VucmU6J2F2X2dlbnJlX2tpZHMnKSBhdl9wcmltYXJ5X2dlbnJlOidhdl9nZW5yZV9hbmltZScpKSkmcHZfb2ZmZXJzPUNIOkNIOnN2b2Q6cHJpbWU6dm9kOi0xNjg2NzkzODAwOjE2ODY3OTM4MDAtJnNlYXJjaC1hbGlhcz1pbnN0YW50LXZpZGVvJnFzLWF2X3JlcXVlc3RfdHlwZT00JnFzLWlzLXByaW1lLWN1c3RvbWVyPTIiLCJydCI6InpiZmNxdnNtciIsInR4dCI6IlRvcCBtb3ZpZXMiLCJvZmZzZXQiOjAsIm5wc2kiOjAsIm9yZXEiOiIwYzBjOTJhNi04NjdlLTQzNmYtOGM4MC1mMTBlMWM0YzE4OGM6MTY4Njc5NDM3NTAwMCIsInN0cmlkIjoiMToxMzVVTUQ4UzdFME82MyMjTVpRV0daTFVNVlNFR1lMU041MlhHWkxNIiwib3JlcWsiOiIxMnk4eFR6UWpqUHBkTGFjNW91Tk9VT2MrMXNwSUpJVXpObUZodXBQREhVPSIsIm9yZXFrdiI6MX0%3D&jic=8%7CEgRzdm9k',
-'url_top_tv': 'https://www.primevideo.com/browse/ref=atv_tv_hom_c_laptvn_4_smr?serviceToken=eyJ0eXBlIjoicXVlcnkiLCJuYXYiOnRydWUsInBpIjoiZGVmYXVsdCIsInNlYyI6ImNlbnRlciIsInN0eXBlIjoic2VhcmNoIiwicXJ5IjoicF9uX2VudGl0eV90eXBlPVRWIFNob3cmaW5kZXg9ZXUtYW1hem9uLXZpZGVvLWV1cm8mYWR1bHQtcHJvZHVjdD0wJmJxPShhbmQgc29ydDonZmVhdHVyZWQtcmFuaycgKG5vdCAob3IgKG9yIGF2X3NlY29uZGFyeV9nZW5yZTonYXZfc3ViZ2VucmVfaW50ZXJuYXRpb25hbF9pbmRpYScgYXZfcHJpbWFyeV9nZW5yZTonYXZfZ2VucmVfa2lkcycpIGF2X3ByaW1hcnlfZ2VucmU6J2F2X2dlbnJlX2FuaW1lJykpKSZwdl9vZmZlcnM9Q0g6Q0g6c3ZvZDpwcmltZTp2b2Q6LTE2ODY3OTM4MDA6MTY4Njc5MzgwMC0mc2VhcmNoLWFsaWFzPWluc3RhbnQtdmlkZW8mcXMtYXZfcmVxdWVzdF90eXBlPTQmcXMtaXMtcHJpbWUtY3VzdG9tZXI9MiIsInJ0IjoibEFQdFZuc21yIiwidHh0IjoiVG9wIFRWIiwib2Zmc2V0IjowLCJucHNpIjowLCJvcmVxIjoiMmU4Y2VjNjItZjE4Zi00M2ZmLWI0N2MtOWE1ODYzMjliMzg1OjE2ODY3OTQzOTIwMDAiLCJzdHJpZCI6IjE6MUlBWUcwQlVUMUVWTyMjTVpRV0daTFVNVlNFR1lMU041MlhHWkxNIiwib3JlcWsiOiIxMnk4eFR6UWpqUHBkTGFjNW91Tk9VT2MrMXNwSUpJVXpObUZodXBQREhVPSIsIm9yZXFrdiI6MX0%3D&jic=8%7CEgRzdm9k',
-'url_recentlyadded_movies': 'https://www.primevideo.com/browse/ref=atv_mv_hom_c_y3hzaq_13_smr?serviceToken=eyJ0eXBlIjoicXVlcnkiLCJuYXYiOnRydWUsInBpIjoiZGVmYXVsdCIsInNlYyI6ImNlbnRlciIsInN0eXBlIjoic2VhcmNoIiwicXJ5IjoicF9uX2VudGl0eV90eXBlPU1vdmllJmluZGV4PWV1LWFtYXpvbi12aWRlby1ldXJvJmFkdWx0LXByb2R1Y3Q9MCZicT0oYW5kIChub3QgYXZfc2Vjb25kYXJ5X2dlbnJlOidhdl9zdWJnZW5yZV9pbnRlcm5hdGlvbmFsX2luZGlhJykgKG5vdCBhdl9wcmltYXJ5X2dlbnJlOidhdl9nZW5yZV9hbmltZScpICkmcHZfb2ZmZXJzPUNIOkNIOnN2b2Q6cHJpbWU6dm9kOjE2ODQyMDI0MDAtOjE2ODY3OTQ0MDAtJnNlYXJjaC1hbGlhcz1pbnN0YW50LXZpZGVvJnFzLWF2X3JlcXVlc3RfdHlwZT00JnFzLWlzLXByaW1lLWN1c3RvbWVyPTIiLCJydCI6InkzaFpBUXNtciIsInR4dCI6IlJlY2VudGx5IGFkZGVkIG1vdmllcyIsIm9mZnNldCI6MCwibnBzaSI6MCwib3JlcSI6ImNjMGIxMjBiLWRjMmYtNGI1MS05MjgwLTA4OTZkODU3MjQwMjoxNjg2Nzk0NDQ3MDAwIiwic3RyaWQiOiIxOjEyM0w5MExFSkZITTVJIyNNWlFXR1pMVU1WU0VHWUxTTjUyWEdaTE0iLCJvcmVxayI6IjEyeTh4VHpRampQcGRMYWM1b3VOT1VPYysxc3BJSklVek5tRmh1cFBESFU9Iiwib3JlcWt2IjoxfQ%3D%3D&jic=8%7CEgRzdm9k',
-'url_recentlyadded_tv': 'https://www.primevideo.com/browse/ref=atv_tv_hom_c_awsvbq_13_smr?serviceToken=eyJ0eXBlIjoicXVlcnkiLCJuYXYiOnRydWUsInBpIjoiZGVmYXVsdCIsInNlYyI6ImNlbnRlciIsInN0eXBlIjoic2VhcmNoIiwicXJ5IjoicF9uX2VudGl0eV90eXBlPVRWIFNob3cmaW5kZXg9ZXUtYW1hem9uLXZpZGVvLWV1cm8mYWR1bHQtcHJvZHVjdD0wJmJxPShhbmQgKG5vdCBhdl9zZWNvbmRhcnlfZ2VucmU6J2F2X3N1YmdlbnJlX2ludGVybmF0aW9uYWxfaW5kaWEnKSAobm90IGF2X3ByaW1hcnlfZ2VucmU6J2F2X2dlbnJlX2FuaW1lJykgKSZwdl9vZmZlcnM9Q0g6Q0g6c3ZvZDpwcmltZTp2b2Q6MTY4NDIwMjQwMC06MTY4Njc5NDQwMC0mc2VhcmNoLWFsaWFzPWluc3RhbnQtdmlkZW8mcXMtYXZfcmVxdWVzdF90eXBlPTQmcXMtaXMtcHJpbWUtY3VzdG9tZXI9MiIsInJ0IjoiQXdTVmJRc21yIiwidHh0IjoiUmVjZW50bHkgYWRkZWQgVFYiLCJvZmZzZXQiOjAsIm5wc2kiOjAsIm9yZXEiOiI3YzI3NWQ3Zi1kYzRmLTQwMDUtOTQ2OS00YjU4MGI0NDQyZmU6MTY4Njc5NDUxMzAwMCIsInN0cmlkIjoiMToxMktUTTdSVkVROEk2VCMjTVpRV0daTFVNVlNFR1lMU041MlhHWkxNIiwib3JlcWsiOiIxMnk4eFR6UWpqUHBkTGFjNW91Tk9VT2MrMXNwSUpJVXpObUZodXBQREhVPSIsIm9yZXFrdiI6MX0%3D&jic=8%7CEgRzdm9k',
+#'top_movies': 'https://www.primevideo.com/browse/ref=atv_mv_hom_c_zbfcqv_8_smr?serviceToken=eyJ0eXBlIjoicXVlcnkiLCJuYXYiOnRydWUsInBpIjoiZGVmYXVsdCIsInNlYyI6ImNlbnRlciIsInN0eXBlIjoic2VhcmNoIiwicXJ5IjoicF9uX2VudGl0eV90eXBlPU1vdmllJmluZGV4PWV1LWFtYXpvbi12aWRlby1ldXJvJmFkdWx0LXByb2R1Y3Q9MCZicT0oYW5kIHNvcnQ6J2ZlYXR1cmVkLXJhbmsnIChub3QgKG9yIChvciBhdl9zZWNvbmRhcnlfZ2VucmU6J2F2X3N1YmdlbnJlX2ludGVybmF0aW9uYWxfaW5kaWEnIGF2X3ByaW1hcnlfZ2VucmU6J2F2X2dlbnJlX2tpZHMnKSBhdl9wcmltYXJ5X2dlbnJlOidhdl9nZW5yZV9hbmltZScpKSkmcHZfb2ZmZXJzPUNIOkNIOnN2b2Q6cHJpbWU6dm9kOi0xNjg2NzkzODAwOjE2ODY3OTM4MDAtJnNlYXJjaC1hbGlhcz1pbnN0YW50LXZpZGVvJnFzLWF2X3JlcXVlc3RfdHlwZT00JnFzLWlzLXByaW1lLWN1c3RvbWVyPTIiLCJydCI6InpiZmNxdnNtciIsInR4dCI6IlRvcCBtb3ZpZXMiLCJvZmZzZXQiOjAsIm5wc2kiOjAsIm9yZXEiOiIwYzBjOTJhNi04NjdlLTQzNmYtOGM4MC1mMTBlMWM0YzE4OGM6MTY4Njc5NDM3NTAwMCIsInN0cmlkIjoiMToxMzVVTUQ4UzdFME82MyMjTVpRV0daTFVNVlNFR1lMU041MlhHWkxNIiwib3JlcWsiOiIxMnk4eFR6UWpqUHBkTGFjNW91Tk9VT2MrMXNwSUpJVXpObUZodXBQREhVPSIsIm9yZXFrdiI6MX0%3D&jic=8%7CEgRzdm9k',
+'top_tv': 'https://www.primevideo.com/browse/ref=atv_tv_hom_c_laptvn_4_smr?serviceToken=eyJ0eXBlIjoicXVlcnkiLCJuYXYiOnRydWUsInBpIjoiZGVmYXVsdCIsInNlYyI6ImNlbnRlciIsInN0eXBlIjoic2VhcmNoIiwicXJ5IjoicF9uX2VudGl0eV90eXBlPVRWIFNob3cmaW5kZXg9ZXUtYW1hem9uLXZpZGVvLWV1cm8mYWR1bHQtcHJvZHVjdD0wJmJxPShhbmQgc29ydDonZmVhdHVyZWQtcmFuaycgKG5vdCAob3IgKG9yIGF2X3NlY29uZGFyeV9nZW5yZTonYXZfc3ViZ2VucmVfaW50ZXJuYXRpb25hbF9pbmRpYScgYXZfcHJpbWFyeV9nZW5yZTonYXZfZ2VucmVfa2lkcycpIGF2X3ByaW1hcnlfZ2VucmU6J2F2X2dlbnJlX2FuaW1lJykpKSZwdl9vZmZlcnM9Q0g6Q0g6c3ZvZDpwcmltZTp2b2Q6LTE2ODY3OTM4MDA6MTY4Njc5MzgwMC0mc2VhcmNoLWFsaWFzPWluc3RhbnQtdmlkZW8mcXMtYXZfcmVxdWVzdF90eXBlPTQmcXMtaXMtcHJpbWUtY3VzdG9tZXI9MiIsInJ0IjoibEFQdFZuc21yIiwidHh0IjoiVG9wIFRWIiwib2Zmc2V0IjowLCJucHNpIjowLCJvcmVxIjoiMmU4Y2VjNjItZjE4Zi00M2ZmLWI0N2MtOWE1ODYzMjliMzg1OjE2ODY3OTQzOTIwMDAiLCJzdHJpZCI6IjE6MUlBWUcwQlVUMUVWTyMjTVpRV0daTFVNVlNFR1lMU041MlhHWkxNIiwib3JlcWsiOiIxMnk4eFR6UWpqUHBkTGFjNW91Tk9VT2MrMXNwSUpJVXpObUZodXBQREhVPSIsIm9yZXFrdiI6MX0%3D&jic=8%7CEgRzdm9k',
+#'recentlyadded_movies': 'https://www.primevideo.com/browse/ref=atv_mv_hom_c_y3hzaq_13_smr?serviceToken=eyJ0eXBlIjoicXVlcnkiLCJuYXYiOnRydWUsInBpIjoiZGVmYXVsdCIsInNlYyI6ImNlbnRlciIsInN0eXBlIjoic2VhcmNoIiwicXJ5IjoicF9uX2VudGl0eV90eXBlPU1vdmllJmluZGV4PWV1LWFtYXpvbi12aWRlby1ldXJvJmFkdWx0LXByb2R1Y3Q9MCZicT0oYW5kIChub3QgYXZfc2Vjb25kYXJ5X2dlbnJlOidhdl9zdWJnZW5yZV9pbnRlcm5hdGlvbmFsX2luZGlhJykgKG5vdCBhdl9wcmltYXJ5X2dlbnJlOidhdl9nZW5yZV9hbmltZScpICkmcHZfb2ZmZXJzPUNIOkNIOnN2b2Q6cHJpbWU6dm9kOjE2ODQyMDI0MDAtOjE2ODY3OTQ0MDAtJnNlYXJjaC1hbGlhcz1pbnN0YW50LXZpZGVvJnFzLWF2X3JlcXVlc3RfdHlwZT00JnFzLWlzLXByaW1lLWN1c3RvbWVyPTIiLCJydCI6InkzaFpBUXNtciIsInR4dCI6IlJlY2VudGx5IGFkZGVkIG1vdmllcyIsIm9mZnNldCI6MCwibnBzaSI6MCwib3JlcSI6ImNjMGIxMjBiLWRjMmYtNGI1MS05MjgwLTA4OTZkODU3MjQwMjoxNjg2Nzk0NDQ3MDAwIiwic3RyaWQiOiIxOjEyM0w5MExFSkZITTVJIyNNWlFXR1pMVU1WU0VHWUxTTjUyWEdaTE0iLCJvcmVxayI6IjEyeTh4VHpRampQcGRMYWM1b3VOT1VPYysxc3BJSklVek5tRmh1cFBESFU9Iiwib3JlcWt2IjoxfQ%3D%3D&jic=8%7CEgRzdm9k',
+#'recentlyadded_tv': 'https://www.primevideo.com/browse/ref=atv_tv_hom_c_awsvbq_13_smr?serviceToken=eyJ0eXBlIjoicXVlcnkiLCJuYXYiOnRydWUsInBpIjoiZGVmYXVsdCIsInNlYyI6ImNlbnRlciIsInN0eXBlIjoic2VhcmNoIiwicXJ5IjoicF9uX2VudGl0eV90eXBlPVRWIFNob3cmaW5kZXg9ZXUtYW1hem9uLXZpZGVvLWV1cm8mYWR1bHQtcHJvZHVjdD0wJmJxPShhbmQgKG5vdCBhdl9zZWNvbmRhcnlfZ2VucmU6J2F2X3N1YmdlbnJlX2ludGVybmF0aW9uYWxfaW5kaWEnKSAobm90IGF2X3ByaW1hcnlfZ2VucmU6J2F2X2dlbnJlX2FuaW1lJykgKSZwdl9vZmZlcnM9Q0g6Q0g6c3ZvZDpwcmltZTp2b2Q6MTY4NDIwMjQwMC06MTY4Njc5NDQwMC0mc2VhcmNoLWFsaWFzPWluc3RhbnQtdmlkZW8mcXMtYXZfcmVxdWVzdF90eXBlPTQmcXMtaXMtcHJpbWUtY3VzdG9tZXI9MiIsInJ0IjoiQXdTVmJRc21yIiwidHh0IjoiUmVjZW50bHkgYWRkZWQgVFYiLCJvZmZzZXQiOjAsIm5wc2kiOjAsIm9yZXEiOiI3YzI3NWQ3Zi1kYzRmLTQwMDUtOTQ2OS00YjU4MGI0NDQyZmU6MTY4Njc5NDUxMzAwMCIsInN0cmlkIjoiMToxMktUTTdSVkVROEk2VCMjTVpRV0daTFVNVlNFR1lMU041MlhHWkxNIiwib3JlcWsiOiIxMnk4eFR6UWpqUHBkTGFjNW91Tk9VT2MrMXNwSUpJVXpObUZodXBQREhVPSIsIm9yZXFrdiI6MX0%3D&jic=8%7CEgRzdm9k',
 }
 
 content_names = [] # store to avoid duplicate movie/tv titles
@@ -57,7 +57,7 @@ async def get_url_of_vidchunk(url):
     chunk_url = [""]
 
     def interception_fun(response):
-        if "_video_" in response.url and ".mp4" in response.url and "trailer" not in response.url:
+        if "_video_" in response.url and ".mp4" in response.url and "trailer" not in response.url and "s3-dub-" in response.url :
             # Response logic goes here
             #print("URL:", response.url, "\n\n")
             chunk_url[0] = response.url
@@ -101,6 +101,10 @@ async def get_url_of_vidchunk(url):
 
 async def scroll_to_bottom(page):
     all_link_data = []
+    shows_count = 0
+    MAX_SHOWS = 130 ### CHANGE IT !!!!
+    shows_url = []
+
     while True:
         link_data = await page.evaluate('''() => {
             const links = Array.from(document.querySelectorAll('[href]'));
@@ -115,13 +119,22 @@ async def scroll_to_bottom(page):
         
         previous_height = await page.evaluate('document.body.scrollHeight')
         await page.evaluate('window.scrollTo(0, document.body.scrollHeight)')
-        await asyncio.sleep(1)  # Adjust the sleep time as needed
+        await asyncio.sleep(2)  # Adjust the sleep time as needed
         current_height = await page.evaluate('document.body.scrollHeight')
 
-        all_link_data.extend(link_data)
+        for data in link_data:
+            if "https://www.primevideo.com/detail/" in data['href']:
+                if data['href'] not in shows_url: # to avoid duplicates
+                    print(data['href'])
+                    shows_count += 1
+                    all_link_data.append(data)
+                    shows_url.append(data['href'])
+
+
+        #all_link_data.extend(link_data)
   
-        if previous_height == current_height:
-            return all_link_data
+        if current_height == previous_height or shows_count >= MAX_SHOWS:
+            return all_link_data[:MAX_SHOWS+1]
     
 
 async def get_link_addresses(url):
@@ -139,7 +152,7 @@ async def get_all_links(url):
     all_link_data = await get_link_addresses(url)
     all_link_data_new = [] # removes duplicates, add videopage url
     global content_names
-
+    
     for data in all_link_data:
         name = data['text']
         url_title = data['href']
@@ -211,9 +224,9 @@ if __name__ == '__main__':
             print("Videopage:", url_videopage)
             print("Chunk:", url_chunk)
             data['url_chunk'] = url_chunk
-            data['content'] = content
+            data['content'] = "prime_" + content
             print("\n\n")
-            with open(content + ".csv", 'a', newline='') as csvfile:
+            with open("url_prime_" + content + ".csv", 'a', newline='') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=keys)
                 if csvfile.tell() == 0: # if csv file is empty
                     writer.writeheader()  # Write the header row
